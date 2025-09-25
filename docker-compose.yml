@@ -1,4 +1,8 @@
 services:
+  # if db and backup image not in one docker-compose file,
+  # then network should be created and both containers should be in this network
+  # networks:
+  #   pg-network:
   postgres:
     image: postgres
     container_name: postgres-test
