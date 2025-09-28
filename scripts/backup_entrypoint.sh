@@ -3,8 +3,17 @@ set -eu
 
 LOG_FILE=/backups/backup.log
 
+# check DB connection 
+echo "checking database connection..." >> "$LOG_FILE"
+if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -q; then
+    echo "[$(date +"%Y-%m-%d_%H-%M-%S")] INFO: Initial database connection successful." >> "$LOG_FILE"
+else
+    error_message=$(pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" 2>&1)
+    echo "[$(date +"%Y-%m-%d_%H-%M-%S")] WARNING: Initial database connection failed. Will retry on schedule. Details: $error_message" >> "$LOG_FILE"
+fi
+
 do_backup() {
-  DEST_DIR=/backups
+   DEST_DIR=/backups
   mkdir -p "$DEST_DIR"
   STAMP=$(date +"%Y-%m-%d_%H-%M-%S")
   OUT="$DEST_DIR/all_${STAMP}.sql.gz"
